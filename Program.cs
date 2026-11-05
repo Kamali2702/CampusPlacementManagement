@@ -72,6 +72,9 @@ builder.Services.AddScoped<ICollegeService, CollegeService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
+builder.Services.AddScoped<IPlacementOfficerRepository, PlacementOfficerRepository>();
+builder.Services.AddScoped<IPlacementOfficerService, PlacementOfficerService>();
+
 // Register OpenAPI
 builder.Services.AddOpenApi();
 
