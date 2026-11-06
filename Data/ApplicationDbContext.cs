@@ -18,6 +18,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Company> Companies { get; set; }
 
+    public DbSet<CompanyHR> CompanyHRs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -45,5 +47,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<Company>()
             .HasIndex(c => c.CompanyEmail)
             .IsUnique();
+
+        builder.Entity<CompanyHR>()
+            .HasIndex(h => h.UserId)
+            .IsUnique();
+
+        builder.Entity<CompanyHR>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(h => h.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<CompanyHR>()
+            .HasOne<Company>()
+            .WithMany()
+            .HasForeignKey(h => h.CompanyId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

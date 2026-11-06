@@ -79,3 +79,66 @@ All Company Management API tests were completed successfully using Postman.
 ### Final Test Data
 - Company ID 1 – Tech Solutions Pvt Ltd – Suspended
 - Company ID 2 – ABC Technologies – Rejected
+
+
+## Company HR Management
+
+### Overview
+Company HR representatives can register under an approved company. Their accounts remain Pending until approved or rejected by the SuperAdmin.
+
+### Features
+- Register Company HR under an approved company.
+- Prevent duplicate email registration.
+- View all Company HR accounts.
+- View pending Company HR accounts.
+- View Company HR details by ID.
+- Allow an approved Company HR to view their own profile.
+- SuperAdmin can approve or reject Company HR accounts.
+- Assign the CompanyHR role after approval.
+- Prevent rejected or pending accounts from logging in.
+
+### API Endpoints
+
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | /api/company-hrs/register | Public |
+| GET | /api/company-hrs | SuperAdmin |
+| GET | /api/company-hrs/pending | SuperAdmin |
+| GET | /api/company-hrs/{id} | SuperAdmin |
+| GET | /api/company-hrs/me | CompanyHR |
+| PUT | /api/company-hrs/{id}/approve | SuperAdmin |
+| PUT | /api/company-hrs/{id}/reject | SuperAdmin |
+
+### Account Workflow
+
+1. Company HR submits registration details.
+2. The selected company must have Approved status.
+3. A new user account is created with Pending status.
+4. SuperAdmin reviews the registration.
+5. On approval, the account becomes Approved and receives the CompanyHR role.
+6. On rejection, the account becomes Rejected and cannot log in.
+
+### Database
+- CompanyHRId
+- UserId (FK to ApplicationUser)
+- CompanyId (FK to Company)
+- Designation
+- ApprovedBy
+- ApprovedAt
+
+Each Company HR belongs to one company. A company can have multiple Company HR representatives.
+
+### Postman Testing
+- Company HR registration – 201 Created
+- Get pending Company HRs – 200 OK
+- Approve Company HR – 200 OK
+- Company HR login – 200 OK
+- Get own profile – 200 OK
+- Get all Company HRs – 200 OK
+- Get Company HR by ID – 200 OK
+- Duplicate approval – 400 Bad Request
+- Registration under rejected company – 409 Conflict
+- Duplicate email – 409 Conflict
+- Reject Company HR – 200 OK
+- Rejected account login – Blocked
+- Pending list excludes approved and rejected accounts
