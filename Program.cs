@@ -75,6 +75,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPlacementOfficerRepository, PlacementOfficerRepository>();
 builder.Services.AddScoped<IPlacementOfficerService, PlacementOfficerService>();
 
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+
 // Register OpenAPI
 builder.Services.AddOpenApi();
 
