@@ -1,3 +1,4 @@
+
 using CampusPlacementManagement.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Company> Companies { get; set; }
 
     public DbSet<CompanyHR> CompanyHRs { get; set; }
+
+    public DbSet<Student> Students { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -62,6 +65,34 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasOne<Company>()
             .WithMany()
             .HasForeignKey(h => h.CompanyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Student configuration
+
+        builder.Entity<Student>()
+            .HasIndex(s => new { s.CollegeId, s.RegisterNumber })
+            .IsUnique();
+
+        builder.Entity<Student>()
+            .Property(s => s.CGPA)
+            .HasPrecision(4, 2);
+
+        builder.Entity<Student>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Student>()
+            .HasOne<College>()
+            .WithMany()
+            .HasForeignKey(s => s.CollegeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Student>()
+            .HasOne<PlacementOfficer>()
+            .WithMany()
+            .HasForeignKey(s => s.PlacementOfficerId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -96,4 +96,42 @@ public class AuthService : IAuthService
             Roles = roles.ToList()
         };
     }
+    public async Task<string> GenerateStudentPasswordSetupTokenAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
+            throw new InvalidOperationException("Student account not found.");
+
+        if (user.AccountStatus != AccountStatus.Approved)
+            throw new InvalidOperationException("Only approved students can set their password.");
+
+        if (!await _userManager.IsInRoleAsync(user, "Student"))
+            throw new InvalidOperationException("The account does not belong to a Student.");
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        return token;
+    }
+
+    public async Task<bool> SetStudentPasswordAsync(SetStudentPasswordRequestDto request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+
+        if (user == null)
+            return false;
+
+        if (user.AccountStatus != AccountStatus.Approved)
+            return false;
+
+        if (!await _userManager.IsInRoleAsync(user, "Student"))
+            return false;
+
+        var result = await _userManager.ResetPasswordAsync(
+            user,
+            request.Token,
+            request.NewPassword);
+
+        return result.Succeeded;
+    }
 }

@@ -8,7 +8,6 @@ namespace CampusPlacementManagement.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
@@ -19,17 +18,46 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(
-        RegisterRequestDto request)
+    [AllowAnonymous]
+    public async Task<IActionResult> Register(RegisterRequestDto request)
+    {
+        var result = await _authService.RegisterAsync(request);
+        return Ok(result);
+    }
+
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<ActionResult<AuthResponseDto>> Login(LoginRequestDto request)
     {
         try
         {
-            var result = await _authService.RegisterAsync(request);
+            var result = await _authService.LoginAsync(request);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 
-            return StatusCode(201, new
+    [HttpPost("student-password-setup-token")]
+    [Authorize(Roles = "SuperAdmin")]
+    public async Task<IActionResult> GenerateStudentPasswordSetupToken(
+        StudentPasswordSetupRequestDto request)
+    {
+        try
+        {
+            var token = await _authService.GenerateStudentPasswordSetupTokenAsync(
+                request.Email);
+
+            return Ok(new
             {
-                message = "Registration successful. Awaiting approval.",
-                user = result
+                message = "Password setup token generated.",
+                token
             });
         }
         catch (InvalidOperationException ex)
@@ -38,19 +66,21 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("login")]
-    public async Task<ActionResult<AuthResponseDto>> Login(
-        LoginRequestDto request)
+    [HttpPost("student-password-setup")]
+    [AllowAnonymous]
+    public async Task<IActionResult> SetStudentPassword(
+        SetStudentPasswordRequestDto request)
     {
-        try
-        {
-            var result = await _authService.LoginAsync(request);
+        var success = await _authService.SetStudentPasswordAsync(request);
 
-            return Ok(result);
-        }
-        catch (UnauthorizedAccessException ex)
+        if (!success)
         {
-            return Unauthorized(new { message = ex.Message });
+            return BadRequest(new
+            {
+                message = "Invalid request or password setup token."
+            });
         }
+
+        return Ok(new { message = "Student password set successfully." });
     }
 }

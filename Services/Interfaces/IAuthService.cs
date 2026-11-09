@@ -8,4 +8,8 @@ public interface IAuthService
     Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
 
     Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
+    Task<string> GenerateStudentPasswordSetupTokenAsync(string email);
+
+    Task<bool> SetStudentPasswordAsync(SetStudentPasswordRequestDto request);
 }
+
